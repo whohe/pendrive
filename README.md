@@ -1,5 +1,5 @@
 ## 📦 pendrive.iso Workflow  
-Este proyecto automatiza la creación de una imagen ISO personalizada, preparada para ser instalada en una memoria USB (pendrive) con características específicas como persistencia de datos y cifrado. El workflow está definido en `.github/workflows/makeIsoPendrive.yml`.
+Este proyecto automatiza la creación de una imagen ISO personalizada, preparada para ser instalada en una memoria USB (pendrive) con características específicas como persistencia de datos y cifrado. El workflow está definido en `.github/workflows/pendrive.yml`.
 
 ---
 
