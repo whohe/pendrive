@@ -125,6 +125,19 @@ jobs:
             chown who:who /home/who/.local -R
           "
 
+      - name: Setup vim, tmux and ranger CLI - IDE
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            su - who -c 'git clone https://github.com/whohe/.vim ~/.vim'
+            su - who -c 'git clone https://github.com/whohe/.tmux ~/.tmux'
+            su - who -c 'cd ~ && ln -s .vim/vimrc .vimrc'
+            su - who -c 'cd ~ && ln -s .tmux/tmux.conf .tmux.conf'
+            su - who -c 'mkdir -p ~/.config/fish'
+            su - who -c 'wget -O config.fish https://gist.githubusercontent.com/whohe/5263d28b14e6e58c1296cf9ab5860cac/raw/7126b105eab0af21a462e37a9cef1f91dfc8194f/config.fish'
+            su - who -c 'mkdir -p ~/.config/ranger'
+            su - who -c 'wget -O rifle.conf https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
+          "
+
       - name: Umount bind folders
         run: |
           sudo umount filesystem/dev
