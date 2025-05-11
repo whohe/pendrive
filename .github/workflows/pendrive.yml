@@ -138,6 +138,12 @@ jobs:
             su - who -c 'wget -O rifle.conf https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
           "
 
+      - name: Setup ufw Firewall
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            ufw enable
+          "
+
       - name: Umount bind folders
         run: |
           sudo umount filesystem/dev
