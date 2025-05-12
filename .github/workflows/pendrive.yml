@@ -253,6 +253,6 @@ jobs:
           git config user.name "Wilson"
           git config user.email "wilsonhernandezortiz@gmail.com"
           git add pendrive.iso.sha256
-          git commit -m "Add sha256 signature for $VERSION"
+          git commit -m "Add sha256 signature for verification purposes"
           git push
 
