@@ -90,12 +90,6 @@ jobs:
             usermod -c 'ヽ(⌐■_■)ノ♪♬' who
           "
 
-      - name: Usar hora BIOS como hora local
-        run: |
-          sudo chroot filesystem /bin/bash -c "
-            timedatectl set-local-rtc 1 --adjust-system-clock
-          "
-
       - name: Set Bogota timezone
         run: |
           sudo chroot filesystem /bin/bash -c "
@@ -111,6 +105,12 @@ jobs:
             xargs -a /tmp/packages.txt apt-get install -y
           "
 
+      - name: Usar hora BIOS como hora local
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            timedatectl set-local-rtc 1 --adjust-system-clock
+          "
+          
       - name: Make default user folders with xdg-user-dirs-update
         run: |
           sudo chroot filesystem /bin/bash -c "
