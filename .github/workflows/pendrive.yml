@@ -108,7 +108,8 @@ jobs:
       - name: Usar hora BIOS como hora local
         run: |
           sudo chroot filesystem /bin/bash -c "
-            timedatectl set-local-rtc 1 --adjust-system-clock
+            echo 'LOCAL' > /etc/adjtime
+            hwclock --hctosys --localtime
           "
           
       - name: Make default user folders with xdg-user-dirs-update
