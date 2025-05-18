@@ -22,7 +22,7 @@ jobs:
 
       - name: Get oficial debian live image 
         run: |
-          wget -O live.iso https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-12.10.0-amd64-gnome.iso
+          wget -O live.iso https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/$(wget -qO- https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/ | grep -oP 'debian-live-[\d\.]+-amd64-gnome\.iso' | head -n1)
           echo "Descarga completada"
 
       - name: Decompress ISO into ./iso folder
