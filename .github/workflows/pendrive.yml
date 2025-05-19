@@ -30,8 +30,8 @@ jobs:
 
       - name: Copy initram and kernel from oficial distribution 
         run: |
-          sudo cp ./iso/live/initrd.img-6.1.0-32-amd64 image/initrd
-          sudo cp ./iso/live/vmlinuz-6.1.0-32-amd64 image/vmlinuz
+          sudo cp ./iso/live/initrd.img-*-amd64 image/initrd
+          sudo cp ./iso/live/vmlinuz-*-amd64 image/vmlinuz
 
       - name: Copy boot y grub signed from oficial distribution
         run: |
