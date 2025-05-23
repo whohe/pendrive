@@ -1,13 +1,13 @@
 name: Live USB ISO Image Builder with Gnome
 
-#on:
-#  schedule:
-#    - cron: '30 10 * * *' 
-
 on:
-  push:
-    branches:
-      - '**'  # Esto incluye todas las ramas
+  schedule:
+    - cron: '30 10 * * *' 
+
+#on:
+#  push:
+#    branches:
+#      - '**'  # Esto incluye todas las ramas
 
 permissions:
   contents: write
