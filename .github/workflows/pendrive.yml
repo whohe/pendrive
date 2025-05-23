@@ -1,8 +1,13 @@
 name: Live USB ISO Image Builder with Gnome
 
+#on:
+#  schedule:
+#    - cron: '30 10 * * *' 
+
 on:
-  schedule:
-    - cron: '30 10 * * *' 
+  push:
+    branches:
+      - '**'  # Esto incluye todas las ramas
 
 permissions:
   contents: write
@@ -108,7 +113,7 @@ jobs:
       - name: Usar hora BIOS como hora local
         run: |
           sudo chroot filesystem /bin/bash -c "
-            echo 'LOCAL' > /etc/adjtime
+            echo -e '0.0 0 0.0\n0\nLOCAL' > /etc/adjtime
             hwclock --hctosys --localtime
           "
           
