@@ -1,13 +1,13 @@
 name: Live USB ISO Image Builder with Gnome
 
-on:
-  schedule:
-    - cron: '30 10 * * *' 
-
 #on:
-#  push:
-#    branches:
-#      - '**'  # Esto incluye todas las ramas
+#  schedule:
+#    - cron: '30 10 * * *' 
+
+on:
+  push:
+    branches:
+      - '**'  # Esto incluye todas las ramas
 
 permissions:
   contents: write
@@ -60,6 +60,7 @@ jobs:
           sudo mount --bind /dev filesystem/dev
           sudo mount --bind /proc filesystem/proc
           sudo mount --bind /sys filesystem/sys
+          sudo mount --bind /dev/rtc0 filesystem/dev/rtc0
 
       - name: Set hostname
         run: |
