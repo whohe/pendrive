@@ -160,6 +160,7 @@ jobs:
 
       - name: Umount bind folders
         run: |
+          sudo umount filesystem/dev/rtc0
           sudo umount filesystem/dev
           sudo umount filesystem/proc
           sudo umount filesystem/sys
