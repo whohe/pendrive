@@ -1274,6 +1274,7 @@ xwayland
 yelp
 yelp-xsl
 zenity
+ufw
 zenity-common
 zip
 zlib1g:amd64
