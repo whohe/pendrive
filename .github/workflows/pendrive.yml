@@ -155,12 +155,6 @@ jobs:
       - name: blacklist autofs4
         run: |
           sudo chroot filesystem /bin/bash -c "echo "blacklist autofs4" | sudo tee /etc/modprobe.d/blacklist-autofs4.conf"
-          
-      - name: Setup ufw Firewall
-        run: |
-          sudo chroot filesystem /bin/bash -c "
-            ufw enable
-          "
 
       - name: Umount bind folders
         run: |
