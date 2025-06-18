@@ -1,4 +1,2 @@
-gnome-core
-ufw
 git 
 wget
