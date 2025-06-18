@@ -108,7 +108,7 @@ jobs:
         run: |
           sudo chroot filesystem /bin/bash -c "
             apt-get update
-            xargs -a /tmp/packages.txt apt-get install -y
+            xargs -a /tmp/packages.txt apt-get install -y  --no-install-recommends
           "
 
       - name: Usar hora BIOS como hora local
