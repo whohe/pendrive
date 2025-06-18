@@ -118,11 +118,11 @@ jobs:
             hwclock --hctosys --localtime
           "
           
-      - name: Make default user folders with xdg-user-dirs-update
-        run: |
-          sudo chroot filesystem /bin/bash -c "
-            su - who -c 'xdg-user-dirs-update'
-          "
+#      - name: Make default user folders with xdg-user-dirs-update
+#        run: |
+#          sudo chroot filesystem /bin/bash -c "
+#            su - who -c 'xdg-user-dirs-update'
+#          "
 
       - name: Make icons folder of AccountsService
         run: |
