@@ -221,8 +221,8 @@ fcitx5-module-fullwidth:amd64
 fcitx5-module-lua:amd64
 fcitx5-module-lua-common
 fcitx5-module-pinyinhelper:amd64
-fcitx5-module-punctuation:amd64
 fcitx5-modules:amd64
+fcitx5-module-punctuation:amd64
 fcitx5-pinyin:amd64
 fcitx5-table:amd64
 fdisk
@@ -2596,3 +2596,5 @@ zhcon
 zhcon-data
 zlib1g:amd64
 zstd
+git
+wget
