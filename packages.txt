@@ -41,7 +41,6 @@ firmware-realtek
 firmware-libertas      
 firmware-zd1211      
 firmware-intel-sound 
-linux-modules-extra-$(uname -r)
 xserver-xorg-video-all   
 mesa-utils 
 xserver-xorg-input-all

@@ -112,7 +112,7 @@ jobs:
           KERNEL_VERSION="${{ steps.get_kernel.outputs.kernel_version }}"
           sudo chroot filesystem /bin/bash -c "
             apt-get update &&
-            apt-get install -y linux-image-$KERNEL_VERSION
+            apt-get install -y linux-image-$KERNEL_VERSION linux-modules-extra-$KERNEL_VERSION 
           "
           sudo chroot filesystem /bin/bash -c "
             apt-get update
