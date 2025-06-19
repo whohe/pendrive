@@ -38,8 +38,7 @@ jobs:
         run: |
           sudo cp ./iso/live/initrd.img-*-amd64 image/initrd
           sudo cp ./iso/live/vmlinuz-*-amd64 image/vmlinuz
-          file=$(ls ./iso/live/initrd.img-*-amd64 | head -n 1)
-          version=${file#initrd.img-}
+          version=$(basename ./iso/live/vmlinuz-*-amd64 | sed 's/vmlinuz-//')
           echo "kernel_version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Copy boot y grub signed from oficial distribution
