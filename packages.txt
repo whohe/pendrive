@@ -30,7 +30,6 @@ bridge-utils
 virt-manager 
 squashfs-tools 
 python3-pip
-linux-image-amd64
 firmware-linux
 firmware-linux-nonfree
 firmware-misc-nonfree
