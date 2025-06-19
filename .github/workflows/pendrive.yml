@@ -158,11 +158,13 @@ jobs:
             su - who -c 'mkdir -p ~/.config/ranger'
             su - who -c 'wget -O ~/.config/ranger/rifle.conf https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
             su - who -c 'wget -O ~/.gitignore https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
-          "
 
-      - name: blacklist autofs4
+          "
+      - name: Setup ufw Firewall
         run: |
-          sudo chroot filesystem /bin/bash -c "echo "blacklist autofs4" | sudo tee /etc/modprobe.d/blacklist-autofs4.conf"
+          sudo chroot filesystem /bin/bash -c "
+            ufw enable
+          "
 
       - name: Umount bind folders
         run: |
