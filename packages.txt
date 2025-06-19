@@ -1046,7 +1046,6 @@ libzvbi-common
 libzvbi0:amd64
 libzxing2:amd64
 linux-base
-linux-image-amd64
 locales
 login
 logrotate
