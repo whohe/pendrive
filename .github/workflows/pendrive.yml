@@ -164,6 +164,8 @@ jobs:
         run: |
           sudo chroot filesystem /bin/bash -c "
             ufw enable
+            ufw default deny incoming
+            ufw default allow outgoing
           "
 
       - name: Umount bind folders
