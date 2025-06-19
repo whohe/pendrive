@@ -34,140 +34,152 @@ jobs:
         run: 7z x live.iso -oiso
 
       - name: Copy initram and kernel from oficial distribution 
+        id: get_kernel
         run: |
           sudo cp ./iso/live/initrd.img-*-amd64 image/initrd
           sudo cp ./iso/live/vmlinuz-*-amd64 image/vmlinuz
+          file=$(ls ./iso/live/initrd.img-*-amd64 | head -n 1)
+          version=${file#initrd.img-}
+          echo "kernel_version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Copy boot y grub signed from oficial distribution
         run: |
           sudo cp ./iso/EFI/boot/bootx64.efi scratch/.
           sudo cp ./iso/EFI/boot/grubx64.efi scratch/.
 
-#      - name: Make debootstrap project
-#        run: |
-#          sudo debootstrap --arch=amd64 --variant=minbase bookworm filesystem https://deb.debian.org/debian
+      - name: Make debootstrap project
+        run: |
+          sudo debootstrap --arch=amd64 --variant=minbase bookworm filesystem https://deb.debian.org/debian
 
-#      - name: Copy custom sources.list 
-#        run: |
-#          sudo cp sources.list filesystem/etc/apt/sources.list
+      - name: Copy custom sources.list 
+        run: |
+          sudo cp sources.list filesystem/etc/apt/sources.list
 
-#      - name: Copy packages.txt to debootstarp project
-#        run: |
-#          cp packages.txt filesystem/tmp/packages.txt
+      - name: Copy packages.txt to debootstarp project
+        run: |
+          cp packages.txt filesystem/tmp/packages.txt
 
-#      - name: Bind mount 
-#        run: |
-#          sudo mount --bind /dev filesystem/dev
-#          sudo mount --bind /proc filesystem/proc
-#          sudo mount --bind /sys filesystem/sys
-#          sudo mount --bind /dev/rtc0 filesystem/dev/rtc0
+      - name: Bind mount 
+        run: |
+          sudo mount --bind /dev filesystem/dev
+          sudo mount --bind /proc filesystem/proc
+          sudo mount --bind /sys filesystem/sys
+          sudo mount --bind /dev/rtc0 filesystem/dev/rtc0
 
-#      - name: Set hostname
-#        run: |
-#          echo "pendrive" | sudo tee filesystem/etc/hostname
+      - name: Set hostname
+        run: |
+          echo "pendrive" | sudo tee filesystem/etc/hostname
 
-#      - name: Install locales into filesystem
-#        run: |
-#          sudo chroot filesystem /bin/bash -c "
-#            apt-get update
-#            apt-get install -y locales 
-#            echo 'es_ES.UTF-8 UTF-8' > /etc/locale.gen
-#            locale-gen
-#            echo 'LANG=es_ES.UTF-8' >> /etc/environment
-#            echo 'LANGUAGE=es_ES' >> /etc/environment
-#            echo 'LC_ALL=es_ES.UTF-8' >> /etc/environment
-#          "
+      - name: Install locales into filesystem
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            apt-get update
+            apt-get install -y locales 
+            echo 'es_ES.UTF-8 UTF-8' > /etc/locale.gen
+            locale-gen
+            echo 'LANG=es_ES.UTF-8' >> /etc/environment
+            echo 'LANGUAGE=es_ES' >> /etc/environment
+            echo 'LC_ALL=es_ES.UTF-8' >> /etc/environment
+          "
 
-#      - name: Make who user and set password
-#        run: |
-#          sudo chroot filesystem /bin/bash -c "
-#            echo 'root:secret' | chpasswd
-#            adduser --disabled-password --gecos '' who
-#            echo 'who:secret' | chpasswd
-#          "
+      - name: Make who user and set password
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            echo 'root:secret' | chpasswd
+            adduser --disabled-password --gecos '' who
+            echo 'who:secret' | chpasswd
+          "
 
-#      - name: Set doas privileges
-#        run: |
-#          echo "permit persist who as root" | sudo tee filesystem/etc/doas.conf
+      - name: Set doas privileges
+        run: |
+          echo "permit persist who as root" | sudo tee filesystem/etc/doas.conf
 
-#      - name: Change display name of who user
-#        run: |
-#          sudo chroot filesystem /bin/bash -c "
-#            usermod -c 'ヽ(⌐■_■)ノ♪♬' who
-#          "
+      - name: Change display name of who user
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            usermod -c 'ヽ(⌐■_■)ノ♪♬' who
+          "
 
-#      - name: Set Bogota timezone
-#        run: |
-#          sudo chroot filesystem /bin/bash -c "
-#            ln -sf /usr/share/zoneinfo/America/Bogota /etc/localtime
-#            echo 'America/Bogota' > /etc/timezone
-#            DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -f noninteractive tzdata
-#          "
+      - name: Set Bogota timezone
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            ln -sf /usr/share/zoneinfo/America/Bogota /etc/localtime
+            echo 'America/Bogota' > /etc/timezone
+            DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -f noninteractive tzdata
+          "
 
-#      - name: Install packages into filesystem 
-#        run: |
-#          sudo chroot filesystem /bin/bash -c "
-#            apt-get update
-#            xargs -a /tmp/packages.txt apt-get install -y  --no-install-recommends
-#          "
+      - name: Install packages into filesystem 
+        run: |
+          KERNEL_VERSION="${{ steps.get_kernel.outputs.kernel_version }}"
+          sudo chroot filesystem /bin/bash -c "
+            apt-get update &&
+            apt-get install -y linux-image-$KERNEL_VERSION
+          "
+          sudo chroot filesystem /bin/bash -c "
+            apt-get update
+            xargs -a /tmp/packages.txt apt-get install -y
+          "
 
-#      - name: Usar hora BIOS como hora local
-#        run: |
-#          sudo chroot filesystem /bin/bash -c "
-#            echo -e '0.0 0 0.0\n0\nLOCAL' > /etc/adjtime
-#            hwclock --hctosys --localtime
-#          "
+      - name: Usar hora BIOS como hora local
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            echo -e '0.0 0 0.0\n0\nLOCAL' > /etc/adjtime
+            hwclock --hctosys --localtime
+          "
           
-#      - name: Make default user folders with xdg-user-dirs-update
-#        run: |
-#          sudo chroot filesystem /bin/bash -c "
-#            su - who -c 'xdg-user-dirs-update'
-#          "
+      - name: Make default user folders with xdg-user-dirs-update
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            su - who -c 'xdg-user-dirs-update'
+          "
 
-#      - name: Make icons folder of AccountsService
-#        run: |
-#          sudo mkdir -p filesystem/var/lib/AccountsService/{icons,users}
-#          echo -e "[User]\\nSession=\\nIcon=/var/lib/AccountsService/icons/who\\nSystemAccount=false" | sudo tee filesystem/var/lib/AccountsService/users/who > /dev/null
-#          sudo cp profile.png filesystem/var/lib/AccountsService/icons/who 
-#          sudo mkdir -p filesystem/home/who/.local/share/backgrounds
-#          sudo mkdir -p filesystem/home/who/.config/dconf/
-#          sudo cp wallpaper.jpg  filesystem/home/who/.local/share/backgrounds/2025-05-06-21-12-24-wallpaper.jpg
-#          sudo cp user filesystem/home/who/.config/dconf/.
-#          sudo chroot filesystem /bin/bash -c "
-#            chown who:who /home/who/.config -R
-#            chown who:who /home/who/.local -R
-#          "
+      - name: Make icons folder of AccountsService
+        run: |
+          sudo mkdir -p filesystem/var/lib/AccountsService/{icons,users}
+          echo -e "[User]\\nSession=\\nIcon=/var/lib/AccountsService/icons/who\\nSystemAccount=false" | sudo tee filesystem/var/lib/AccountsService/users/who > /dev/null
+          sudo cp profile.png filesystem/var/lib/AccountsService/icons/who 
+          sudo mkdir -p filesystem/home/who/.local/share/backgrounds
+          sudo mkdir -p filesystem/home/who/.config/dconf/
+          sudo cp wallpaper.jpg  filesystem/home/who/.local/share/backgrounds/2025-05-06-21-12-24-wallpaper.jpg
+          sudo cp user filesystem/home/who/.config/dconf/.
+          sudo chroot filesystem /bin/bash -c "
+            chown who:who /home/who/.config -R
+            chown who:who /home/who/.local -R
+          "
 
-#      - name: Setup vim, tmux and ranger CLI - IDE
-#        run: |
-#          sudo chroot filesystem /bin/bash -c "
-#            su - who -c 'git clone https://github.com/whohe/.vim ~/.vim'
-#            su - who -c 'git clone https://github.com/whohe/.tmux ~/.tmux'
-#            su - who -c 'cd ~ && ln -s .vim/vimrc .vimrc'
-#            su - who -c 'cd ~ && ln -s .tmux/tmux.conf .tmux.conf'
-#            su - who -c 'mkdir -p ~/.config/fish'
-#            su - who -c 'wget -O ~/.config/fish/config.fish https://gist.githubusercontent.com/whohe/5263d28b14e6e58c1296cf9ab5860cac/raw/7126b105eab0af21a462e37a9cef1f91dfc8194f/config.fish'
-#            su - who -c 'mkdir -p ~/.config/ranger'
-#            su - who -c 'wget -O ~/.config/ranger/rifle.conf https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
-#            su - who -c 'wget -O ~/.gitignore https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
-#          "
+      - name: Setup vim, tmux and ranger CLI - IDE
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            su - who -c 'git clone https://github.com/whohe/.vim ~/.vim'
+            su - who -c 'git clone https://github.com/whohe/.tmux ~/.tmux'
+            su - who -c 'cd ~ && ln -s .vim/vimrc .vimrc'
+            su - who -c 'cd ~ && ln -s .tmux/tmux.conf .tmux.conf'
+            su - who -c 'mkdir -p ~/.config/fish'
+            su - who -c 'wget -O ~/.config/fish/config.fish https://gist.githubusercontent.com/whohe/5263d28b14e6e58c1296cf9ab5860cac/raw/7126b105eab0af21a462e37a9cef1f91dfc8194f/config.fish'
+            su - who -c 'mkdir -p ~/.config/ranger'
+            su - who -c 'wget -O ~/.config/ranger/rifle.conf https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
+            su - who -c 'wget -O ~/.gitignore https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
+          "
 
-#      - name: Umount bind folders
-#        run: |
-#          sudo umount filesystem/dev/rtc0
-#          sudo umount filesystem/dev
-#          sudo umount filesystem/proc
-#          sudo umount filesystem/sys
+      - name: blacklist autofs4
+        run: |
+          sudo chroot filesystem /bin/bash -c "echo "blacklist autofs4" | sudo tee /etc/modprobe.d/blacklist-autofs4.conf"
 
-#      - name: Delete packages.txt of filesystem 
-#        run: |
-#          rm filesystem/tmp/packages.txt
+      - name: Umount bind folders
+        run: |
+          sudo umount filesystem/dev/rtc0
+          sudo umount filesystem/dev
+          sudo umount filesystem/proc
+          sudo umount filesystem/sys
+
+      - name: Delete packages.txt of filesystem 
+        run: |
+          rm filesystem/tmp/packages.txt
 
       - name: Make filesystem.squashfs
         run: |
           mkdir -p image/live
-          sudo cp ./iso/live/filesystem.squashfs image/live/.
-          #sudo mksquashfs filesystem image/live/filesystem.squashfs -e boot
+          sudo mksquashfs filesystem image/live/filesystem.squashfs -e boot
 
       - name: Make efiboot.img and copy UEFI files
         run: |
