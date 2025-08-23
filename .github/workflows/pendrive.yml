@@ -80,7 +80,19 @@ jobs:
             echo 'LANGUAGE=es_ES' >> /etc/environment
             echo 'LC_ALL=es_ES.UTF-8' >> /etc/environment
           "
-
+          
+      - name: Install packages into filesystem 
+        run: |
+          KERNEL_VERSION="${{ steps.get_kernel.outputs.kernel_version }}"
+          sudo chroot filesystem /bin/bash -c "
+            apt-get update &&
+            apt-get install -y linux-image-$KERNEL_VERSION 
+          "
+          sudo chroot filesystem /bin/bash -c "
+            apt-get update
+            xargs -a /tmp/packages.txt apt-get install -y
+          "
+          
       - name: Make who user and set password
         run: |
           sudo chroot filesystem /bin/bash -c "
@@ -105,18 +117,6 @@ jobs:
             ln -sf /usr/share/zoneinfo/America/Bogota /etc/localtime
             echo 'America/Bogota' > /etc/timezone
             DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -f noninteractive tzdata
-          "
-
-      - name: Install packages into filesystem 
-        run: |
-          KERNEL_VERSION="${{ steps.get_kernel.outputs.kernel_version }}"
-          sudo chroot filesystem /bin/bash -c "
-            apt-get update &&
-            apt-get install -y linux-image-$KERNEL_VERSION 
-          "
-          sudo chroot filesystem /bin/bash -c "
-            apt-get update
-            xargs -a /tmp/packages.txt apt-get install -y
           "
 
       - name: Usar hora BIOS como hora local
