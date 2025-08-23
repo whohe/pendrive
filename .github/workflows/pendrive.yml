@@ -1,13 +1,13 @@
 name: Live USB ISO Image Builder with Gnome
 
-on:
-  schedule:
-    - cron: '30 10 * * *' 
-
 #on:
-#  push:
-#    branches:
-#      - '**'  # Esto incluye todas las ramas
+#  schedule:
+#    - cron: '30 10 * * *' 
+
+on:
+  push:
+    branches:
+      - '**'  # Esto incluye todas las ramas
 
 permissions:
   contents: write
@@ -48,7 +48,7 @@ jobs:
 
       - name: Make debootstrap project
         run: |
-          sudo debootstrap --arch=amd64 --variant=minbase bookworm filesystem https://deb.debian.org/debian
+          sudo debootstrap --arch=amd64 --variant=minbase trixie filesystem https://deb.debian.org/debian
 
       - name: Copy custom sources.list 
         run: |
