@@ -1,4 +1,6 @@
 gnome-core
+passwd
+adduser
 ufw
 doas
 wget 
