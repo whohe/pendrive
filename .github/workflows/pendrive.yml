@@ -89,6 +89,10 @@ jobs:
             apt-get install -y linux-image-$KERNEL_VERSION 
           "
           sudo chroot filesystem /bin/bash -c "
+            apt-get update &&
+            apt-get -y -t bookworm install util-linux util-linux-extra sensible-utils
+          "
+          sudo chroot filesystem /bin/bash -c "
             apt-get update
             xargs -a /tmp/packages.txt apt-get install -y
           "

@@ -1,7 +1,6 @@
 gnome-core
 passwd
 adduser
-util-linux
 ufw
 doas
 wget 
