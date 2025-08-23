@@ -150,6 +150,7 @@ jobs:
         run: |
           sudo chroot filesystem /bin/bash -c "
             su - who -c 'git clone https://github.com/whohe/.vim ~/.vim'
+            su - who -c 'cd ~/.vim && git submodule update --init --recursive'
             su - who -c 'git clone https://github.com/whohe/.tmux ~/.tmux'
             su - who -c 'cd ~ && ln -s .vim/vimrc .vimrc'
             su - who -c 'cd ~ && ln -s .tmux/tmux.conf .tmux.conf'
