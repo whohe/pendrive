@@ -100,6 +100,7 @@ jobs:
             mkdir -p /crypt/.thunderbird
             mkdir -p /crypt/system-connections
             ln -s /crypt/system-connections /etc/NetworkManager/system-connections 
+            chown who:who /crypt -R
           "
 
       - name: Make who user and set password
