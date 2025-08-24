@@ -1,13 +1,13 @@
 name: Live USB ISO Image Builder with Gnome
 
-#on:
-#  schedule:
-#    - cron: '30 10 * * *' 
-
 on:
-  push:
-    branches:
-      - '**'  # Esto incluye todas las ramas
+  schedule:
+    - cron: '30 10 * * *' 
+
+#on:
+#  push:
+#    branches:
+#      - '**'  # Esto incluye todas las ramas
 
 permissions:
   contents: write
@@ -98,6 +98,8 @@ jobs:
           sudo chroot filesystem /bin/bash -c "
             mkdir -p /crypt/.mozilla
             mkdir -p /crypt/.thunderbird
+            mkdir -p /crypt/system-connections
+            ln -s /crypt/system-connections /etc/NetworkManager/system-connections 
           "
 
       - name: Make who user and set password
