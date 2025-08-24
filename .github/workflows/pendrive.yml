@@ -212,7 +212,7 @@ jobs:
         run: |
           cd scratch
           dd if=/dev/zero of=crypt.img bs=1M count=33
-          losetup -fP crypt.img
+          sudo losetup -fP crypt.img
           LOOP=$(losetup -j crypt.img | cut -d: -f1)
           echo -n "$CRYPT_SECRET" | sudo cryptsetup luksFormat "$LOOP" --batch-mode --key-file -
           echo -n "$CRYPT_SECRET" | sudo cryptsetup open "$LOOP" crypt --key-file -
