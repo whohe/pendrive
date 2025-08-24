@@ -194,6 +194,31 @@ jobs:
         run: |
           rm filesystem/tmp/packages.txt
 
+      - name: Make crypt.img and
+        id: make_secure_storage
+        run: |
+          cd scratch
+          dd if=/dev/zero of=crypt.img bs=1M count=33
+          sudo losetup -fP crypt.img
+          LOOP=$(losetup -j crypt.img | cut -d: -f1)
+          echo -n ${{ secrets.CRYPT_SECRET }} | sudo cryptsetup luksFormat "$LOOP" --batch-mode --key-file -
+          echo -n ${{ secrets.CRYPT_SECRET }} | sudo cryptsetup open "$LOOP" crypt --key-file -
+          sudo mkfs.ext4 /dev/mapper/crypt
+          UUID=$(sudo blkid -s UUID -o value /dev/mapper/crypt)
+          echo $UUID
+          echo "uuid=$UUID" >> "$GITHUB_OUTPUT"
+          sudo cryptsetup close crypt
+          sudo losetup -d "$LOOP"
+          sync
+
+      - name: Generate crypttab
+        run: |
+          echo "crypt UUID=${{ steps.make_secure_storage.outputs.uuid }} none luks" | sudo tee filesystem/etc/crypttab
+      
+      - name: Generate fstab
+        run: |
+          echo "UUID=${{ steps.make_secure_storage.outputs.uuid }} /crypt ext4 defaults 0 2" | sudo tee filesystem/etc/fstab
+
       - name: Make filesystem.squashfs
         run: |
           mkdir -p image/live
@@ -207,21 +232,6 @@ jobs:
           mmd -i efiboot.img efi efi/boot
           mcopy -i efiboot.img ./bootx64.efi ::efi/boot/
           mcopy -i efiboot.img ./grubx64.efi ::efi/boot/
-
-      - name: Make crypt.img and
-        run: |
-          cd scratch
-          dd if=/dev/zero of=crypt.img bs=1M count=33
-          sudo losetup -fP crypt.img
-          LOOP=$(losetup -j crypt.img | cut -d: -f1)
-          echo -n ${{ secrets.CRYPT_SECRET }} | sudo cryptsetup luksFormat "$LOOP" --batch-mode --key-file -
-          echo -n ${{ secrets.CRYPT_SECRET }} | sudo cryptsetup open "$LOOP" crypt --key-file -
-          sudo mkfs.ext4 /dev/mapper/crypt
-          UUID=$(sudo blkid -s UUID -o value /dev/mapper/crypt)
-          echo $UUID
-          sudo cryptsetup close crypt
-          sudo losetup -d "$LOOP"
-          sync
 
       - name: Generate core.img with grub-mkstandalone
         run: |
