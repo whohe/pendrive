@@ -3,6 +3,7 @@ passwd
 adduser
 util-linux-extra
 ufw
+fdisk
 doas
 wget 
 evince

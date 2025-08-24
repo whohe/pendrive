@@ -17,267 +17,294 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout del repositorio
-        uses: actions/checkout@v3
+      #- name: Checkout del repositorio
+      #  uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget p7zip-full debootstrap squashfs-tools mtools dosfstools grub-pc-bin xorriso megatools
+      #- name: Install dependencies
+      #  run: |
+      #    sudo apt-get update
+      #    sudo apt-get install -y wget p7zip-full debootstrap squashfs-tools mtools dosfstools grub-pc-bin xorriso megatools
 
-      - name: Get oficial debian live image 
-        run: |
-          wget -O live.iso https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/$(wget -qO- https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/ | grep -oP 'debian-live-[\d\.]+-amd64-gnome\.iso' | head -n1)
-          echo "Descarga completada"
+      #- name: Get oficial debian live image 
+      #  run: |
+      #    wget -O live.iso https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/$(wget -qO- https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/ | grep -oP 'debian-live-[\d\.]+-amd64-gnome\.iso' | head -n1)
+      #    echo "Descarga completada"
 
-      - name: Decompress ISO into ./iso folder
-        run: 7z x live.iso -oiso
+      #- name: Decompress ISO into ./iso folder
+      #  run: 7z x live.iso -oiso
 
-      - name: Copy initram and kernel from oficial distribution 
-        id: get_kernel
-        run: |
-          sudo cp ./iso/live/initrd.img-*-amd64 image/initrd
-          sudo cp ./iso/live/vmlinuz-*-amd64 image/vmlinuz
-          version=$(basename ./iso/live/vmlinuz-*-amd64 | sed 's/vmlinuz-//')
-          echo "kernel_version=$version" >> "$GITHUB_OUTPUT"
+      #- name: Copy initram and kernel from oficial distribution 
+      #  id: get_kernel
+      #  run: |
+      #    sudo cp ./iso/live/initrd.img-*-amd64 image/initrd
+      #    sudo cp ./iso/live/vmlinuz-*-amd64 image/vmlinuz
+      #    version=$(basename ./iso/live/vmlinuz-*-amd64 | sed 's/vmlinuz-//')
+      #    echo "kernel_version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Copy boot y grub signed from oficial distribution
-        run: |
-          sudo cp ./iso/EFI/boot/bootx64.efi scratch/.
-          sudo cp ./iso/EFI/boot/grubx64.efi scratch/.
+      #- name: Copy boot y grub signed from oficial distribution
+      #  run: |
+      #    sudo cp ./iso/EFI/boot/bootx64.efi scratch/.
+      #    sudo cp ./iso/EFI/boot/grubx64.efi scratch/.
 
-      - name: Make debootstrap project
-        run: |
-          sudo debootstrap --arch=amd64 --variant=minbase trixie filesystem https://deb.debian.org/debian
+      #- name: Make debootstrap project
+      #  run: |
+      #    sudo debootstrap --arch=amd64 --variant=minbase trixie filesystem https://deb.debian.org/debian
 
-      - name: Copy custom sources.list 
-        run: |
-          sudo cp sources.list filesystem/etc/apt/sources.list
+      #- name: Copy custom sources.list 
+      #  run: |
+      #    sudo cp sources.list filesystem/etc/apt/sources.list
 
-      - name: Copy packages.txt to debootstarp project
-        run: |
-          cp packages.txt filesystem/tmp/packages.txt
+      #- name: Copy packages.txt to debootstarp project
+      #  run: |
+      #    cp packages.txt filesystem/tmp/packages.txt
 
-      - name: Bind mount 
-        run: |
-          sudo mount --bind /dev filesystem/dev
-          sudo mount --bind /proc filesystem/proc
-          sudo mount --bind /sys filesystem/sys
-          sudo mount --bind /dev/rtc0 filesystem/dev/rtc0
+      #- name: Bind mount 
+      #  run: |
+      #    sudo mount --bind /dev filesystem/dev
+      #    sudo mount --bind /proc filesystem/proc
+      #    sudo mount --bind /sys filesystem/sys
+      #    sudo mount --bind /dev/rtc0 filesystem/dev/rtc0
 
-      - name: Set hostname
-        run: |
-          echo "pendrive" | sudo tee filesystem/etc/hostname
+      #- name: Set hostname
+      #  run: |
+      #    echo "pendrive" | sudo tee filesystem/etc/hostname
 
-      - name: Install locales into filesystem
-        run: |
-          sudo chroot filesystem /bin/bash -c "
-            apt-get update
-            apt-get install -y locales 
-            echo 'es_ES.UTF-8 UTF-8' > /etc/locale.gen
-            locale-gen
-            echo 'LANG=es_ES.UTF-8' >> /etc/environment
-            echo 'LANGUAGE=es_ES' >> /etc/environment
-            echo 'LC_ALL=es_ES.UTF-8' >> /etc/environment
-          "
-          
-      - name: Install packages into filesystem 
-        run: |
-          KERNEL_VERSION="${{ steps.get_kernel.outputs.kernel_version }}"
-          sudo chroot filesystem /bin/bash -c "
-            apt-get update &&
-            apt-get install -y linux-image-$KERNEL_VERSION 
-          "
-          sudo chroot filesystem /bin/bash -c "
-            apt-get update
-            xargs -a /tmp/packages.txt apt-get install -y
-          "
-          
-      - name: Make who user and set password
-        run: |
-          sudo chroot filesystem /bin/bash -c "
-            echo 'root:secret' | chpasswd
-            adduser --disabled-password --gecos '' who
-            echo 'who:secret' | chpasswd
-          "
+      #- name: Install locales into filesystem
+      #  run: |
+      #    sudo chroot filesystem /bin/bash -c "
+      #      apt-get update
+      #      apt-get install -y locales 
+      #      echo 'es_ES.UTF-8 UTF-8' > /etc/locale.gen
+      #      locale-gen
+      #      echo 'LANG=es_ES.UTF-8' >> /etc/environment
+      #      echo 'LANGUAGE=es_ES' >> /etc/environment
+      #      echo 'LC_ALL=es_ES.UTF-8' >> /etc/environment
+      #    "
+      #    
+      #- name: Install packages into filesystem 
+      #  run: |
+      #    KERNEL_VERSION="${{ steps.get_kernel.outputs.kernel_version }}"
+      #    sudo chroot filesystem /bin/bash -c "
+      #      apt-get update &&
+      #      apt-get install -y linux-image-$KERNEL_VERSION 
+      #    "
+      #    sudo chroot filesystem /bin/bash -c "
+      #      apt-get update
+      #      xargs -a /tmp/packages.txt apt-get install -y
+      #    "
+      #    
+      #- name: Make CRYPT folder
+      #  run: |
+      #    sudo chroot filesystem /bin/bash -c "
+      #      mkdir -p /crypt/.mozilla
+      #      mkdir -p /crypt/.thunderbird
+      #    "
 
-      - name: Set doas privileges
-        run: |
-          echo "permit persist who as root" | sudo tee filesystem/etc/doas.conf
+      #- name: Make who user and set password
+      #  run: |
+      #    sudo chroot filesystem /bin/bash -c "
+      #      echo 'root:secret' | chpasswd
+      #      adduser --disabled-password --gecos '' who
+      #      echo 'who:secret' | chpasswd
+      #    "
 
-      - name: Change display name of who user
-        run: |
-          sudo chroot filesystem /bin/bash -c "
-            usermod -c 'ヽ(⌐■_■)ノ♪♬' who
-          "
+      #- name: Set doas privileges
+      #  run: |
+      #    echo "permit persist who as root" | sudo tee filesystem/etc/doas.conf
 
-      - name: Set Bogota timezone
-        run: |
-          sudo chroot filesystem /bin/bash -c "
-            ln -sf /usr/share/zoneinfo/America/Bogota /etc/localtime
-            echo 'America/Bogota' > /etc/timezone
-            DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -f noninteractive tzdata
-          "
+      #- name: Change display name of who user
+      #  run: |
+      #    sudo chroot filesystem /bin/bash -c "
+      #      usermod -c 'ヽ(⌐■_■)ノ♪♬' who
+      #    "
 
-      - name: Usar hora BIOS como hora local
-        run: |
-          sudo chroot filesystem /bin/bash -c "
-            echo -e '0.0 0 0.0\n0\nLOCAL' > /etc/adjtime
-            hwclock --hctosys --localtime
-          "
-          
-      - name: Make default user folders with xdg-user-dirs-update
-        run: |
-          sudo chroot filesystem /bin/bash -c "
-            su - who -c 'xdg-user-dirs-update'
-          "
+      #- name: Set Bogota timezone
+      #  run: |
+      #    sudo chroot filesystem /bin/bash -c "
+      #      ln -sf /usr/share/zoneinfo/America/Bogota /etc/localtime
+      #      echo 'America/Bogota' > /etc/timezone
+      #      DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -f noninteractive tzdata
+      #    "
 
-      - name: Make icons folder of AccountsService
-        run: |
-          sudo mkdir -p filesystem/var/lib/AccountsService/{icons,users}
-          echo -e "[User]\\nSession=\\nIcon=/var/lib/AccountsService/icons/who\\nSystemAccount=false" | sudo tee filesystem/var/lib/AccountsService/users/who > /dev/null
-          sudo cp profile.png filesystem/var/lib/AccountsService/icons/who 
-          sudo mkdir -p filesystem/home/who/.local/share/backgrounds
-          sudo mkdir -p filesystem/home/who/.config/dconf/
-          sudo cp wallpaper.jpg  filesystem/home/who/.local/share/backgrounds/2025-05-06-21-12-24-wallpaper.jpg
-          sudo cp user filesystem/home/who/.config/dconf/.
-          sudo chroot filesystem /bin/bash -c "
-            chown who:who /home/who/.config -R
-            chown who:who /home/who/.local -R
-          "
+      #- name: Usar hora BIOS como hora local
+      #  run: |
+      #    sudo chroot filesystem /bin/bash -c "
+      #      echo -e '0.0 0 0.0\n0\nLOCAL' > /etc/adjtime
+      #      hwclock --hctosys --localtime
+      #    "
+      #    
+      #- name: Make default user folders with xdg-user-dirs-update
+      #  run: |
+      #    sudo chroot filesystem /bin/bash -c "
+      #      su - who -c 'xdg-user-dirs-update'
+      #    "
 
-      - name: Setup vim, tmux and ranger CLI - IDE
-        run: |
-          sudo chroot filesystem /bin/bash -c "
-            su - who -c 'git clone https://github.com/whohe/.vim ~/.vim'
-            su - who -c 'cd ~/.vim && git submodule update --init --recursive'
-            su - who -c 'git clone https://github.com/whohe/.tmux ~/.tmux'
-            su - who -c 'cd ~ && ln -s .vim/vimrc .vimrc'
-            su - who -c 'cd ~ && ln -s .tmux/tmux.conf .tmux.conf'
-            su - who -c 'mkdir -p ~/.config/fish'
-            su - who -c 'wget -O ~/.config/fish/config.fish https://gist.githubusercontent.com/whohe/5263d28b14e6e58c1296cf9ab5860cac/raw/7126b105eab0af21a462e37a9cef1f91dfc8194f/config.fish'
-            su - who -c 'mkdir -p ~/.config/ranger'
-            su - who -c 'wget -O ~/.config/ranger/rifle.conf https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
-            su - who -c 'wget -O ~/.gitignore https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
+      #- name: Make icons folder of AccountsService
+      #  run: |
+      #    sudo mkdir -p filesystem/var/lib/AccountsService/{icons,users}
+      #    echo -e "[User]\\nSession=\\nIcon=/var/lib/AccountsService/icons/who\\nSystemAccount=false" | sudo tee filesystem/var/lib/AccountsService/users/who > /dev/null
+      #    sudo cp profile.png filesystem/var/lib/AccountsService/icons/who 
+      #    sudo mkdir -p filesystem/home/who/.local/share/backgrounds
+      #    sudo mkdir -p filesystem/home/who/.config/dconf/
+      #    sudo cp wallpaper.jpg  filesystem/home/who/.local/share/backgrounds/2025-05-06-21-12-24-wallpaper.jpg
+      #    sudo cp user filesystem/home/who/.config/dconf/.
+      #    sudo chroot filesystem /bin/bash -c "
+      #      chown who:who /home/who/.config -R
+      #      chown who:who /home/who/.local -R
+      #    "
 
-          "
-      - name: Setup ufw Firewall
-        run: |
-          sudo chroot filesystem /bin/bash -c "
-            ufw enable
-            ufw default deny incoming
-            ufw default allow outgoing
-          "
+      #- name: Setup vim, tmux and ranger CLI - IDE
+      #  run: |
+      #    sudo chroot filesystem /bin/bash -c "
+      #      su - who -c 'git clone https://github.com/whohe/.vim ~/.vim'
+      #      su - who -c 'cd ~/.vim && git submodule update --init --recursive'
+      #      su - who -c 'git clone https://github.com/whohe/.tmux ~/.tmux'
+      #      su - who -c 'cd ~ && ln -s .vim/vimrc .vimrc'
+      #      su - who -c 'cd ~ && ln -s .tmux/tmux.conf .tmux.conf'
+      #      su - who -c 'mkdir -p ~/.config/fish'
+      #      su - who -c 'wget -O ~/.config/fish/config.fish https://gist.githubusercontent.com/whohe/5263d28b14e6e58c1296cf9ab5860cac/raw/7126b105eab0af21a462e37a9cef1f91dfc8194f/config.fish'
+      #      su - who -c 'mkdir -p ~/.config/ranger'
+      #      su - who -c 'wget -O ~/.config/ranger/rifle.conf https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
+      #      su - who -c 'wget -O ~/.gitignore https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
+      #    "
 
-      - name: Umount bind folders
-        run: |
-          sudo umount filesystem/dev/rtc0
-          sudo umount filesystem/dev
-          sudo umount filesystem/proc
-          sudo umount filesystem/sys
+      #- name: linked mozilla and thunderbird to crypt folder
+      #  run: |
+      #    sudo chroot filesystem /bin/bash -c "
+      #      su - who -c 'ln -s  /crypt/.mozilla ~/.mozilla'
+      #      su - who -c 'ln -s  /crypt/.thunderbird ~/.thunderbird'
+      #    "
 
-      - name: Delete packages.txt of filesystem 
-        run: |
-          rm filesystem/tmp/packages.txt
+      #- name: Setup ufw Firewall
+      #  run: |
+      #    sudo chroot filesystem /bin/bash -c "
+      #      ufw enable
+      #      ufw default deny incoming
+      #      ufw default allow outgoing
+      #    "
 
-      - name: Make filesystem.squashfs
-        run: |
-          mkdir -p image/live
-          sudo mksquashfs filesystem image/live/filesystem.squashfs -e boot
+      #- name: Umount bind folders
+      #  run: |
+      #    sudo umount filesystem/dev/rtc0
+      #    sudo umount filesystem/dev
+      #    sudo umount filesystem/proc
+      #    sudo umount filesystem/sys
 
-      - name: Make efiboot.img and copy UEFI files
+      #- name: Delete packages.txt of filesystem 
+      #  run: |
+      #    rm filesystem/tmp/packages.txt
+
+      #- name: Make filesystem.squashfs
+      #  run: |
+      #    mkdir -p image/live
+      #    sudo mksquashfs filesystem image/live/filesystem.squashfs -e boot -e vmlinuz -e vmlinuz.old -e initrd.img -e initrd.img.old
+
+      #- name: Make efiboot.img and copy UEFI files
+      #  run: |
+      #    cd scratch
+      #    dd if=/dev/zero of=efiboot.img bs=1M count=10
+      #    mkfs.vfat efiboot.img
+      #    mmd -i efiboot.img efi efi/boot
+      #    mcopy -i efiboot.img ./bootx64.efi ::efi/boot/
+      #    mcopy -i efiboot.img ./grubx64.efi ::efi/boot/
+
+      - name: Make crypt.img and
         run: |
           cd scratch
-          dd if=/dev/zero of=efiboot.img bs=1M count=10
-          mkfs.vfat efiboot.img
-          mmd -i efiboot.img efi efi/boot
-          mcopy -i efiboot.img ./bootx64.efi ::efi/boot/
-          mcopy -i efiboot.img ./grubx64.efi ::efi/boot/
+          dd if=/dev/zero of=crypt.img bs=1M count=33
+          losetup -fP crypt.img
+          LOOP=$(losetup -j crypt.img | cut -d: -f1)
+          echo -n "$CRYPT_SECRET" | sudo cryptsetup luksFormat "$LOOP" --batch-mode --key-file -
+          echo -n "$CRYPT_SECRET" | sudo cryptsetup open "$LOOP" crypt --key-file -
+          mkfs.ext4 /dev/mapper/crypt
+          UUID=$(sudo blkid -s UUID -o value /dev/mapper/crypt)
+          echo $UUID
 
-      - name: Generate core.img with grub-mkstandalone
-        run: |
-          grub-mkstandalone \
-            --format=i386-pc \
-            --output=scratch/core.img \
-            --install-modules="linux normal iso9660 biosdisk memdisk search tar ls" \
-            --modules="linux normal iso9660 biosdisk search" \
-            --locales="" \
-            --fonts="" \
-            "boot/grub/grub.cfg=image/boot/grub/grub.cfg"
 
-      - name: make bios.img from cdboot.img and core.img
-        run: |
-          cat /usr/lib/grub/i386-pc/cdboot.img scratch/core.img > /tmp/bios.img
-          mv /tmp/bios.img scratch/bios.img
+      #- name: Generate core.img with grub-mkstandalone
+      #  run: |
+      #    grub-mkstandalone \
+      #      --format=i386-pc \
+      #      --output=scratch/core.img \
+      #      --install-modules="linux normal iso9660 biosdisk memdisk search tar ls" \
+      #      --modules="linux normal iso9660 biosdisk search" \
+      #      --locales="" \
+      #      --fonts="" \
+      #      "boot/grub/grub.cfg=image/boot/grub/grub.cfg"
 
-      - name: Build hybrid ISO with GRUB BIOS/UEFI
-        run: |
-          xorriso -as mkisofs \
-            -iso-level 3 \
-            -full-iso9660-filenames \
-            -volid "pendrive" \
-            -eltorito-boot boot/grub/bios.img \
-            -no-emul-boot \
-            -boot-load-size 4 \
-            -boot-info-table \
-            --eltorito-catalog boot/grub/boot.cat \
-            --grub2-boot-info \
-            --grub2-mbr /usr/lib/grub/i386-pc/boot_hybrid.img \
-            -eltorito-alt-boot \
-            -e EFI/efiboot.img \
-            -no-emul-boot \
-            -append_partition 2 0xef ./scratch/efiboot.img \
-            -output "./pendrive.iso" \
-            -graft-points \
-              "./image" \
-              /boot/grub/bios.img=./scratch/bios.img \
-              /EFI/efiboot.img=./scratch/efiboot.img
+      #- name: make bios.img from cdboot.img and core.img
+      #  run: |
+      #    cat /usr/lib/grub/i386-pc/cdboot.img scratch/core.img > /tmp/bios.img
+      #    mv /tmp/bios.img scratch/bios.img
 
-      - name: Delete previous ISO file from MEGA locker
-        run: |
-          megarm --username "${{ secrets.MEGA_USER }}"  --password "${{ secrets.MEGA_PASS }}"  /Root/pendrive.iso || true
+      #- name: Build hybrid ISO with GRUB BIOS/UEFI
+      #  run: |
+      #    xorriso -as mkisofs \
+      #      -iso-level 3 \
+      #      -full-iso9660-filenames \
+      #      -volid "pendrive" \
+      #      -eltorito-boot boot/grub/bios.img \
+      #      -no-emul-boot \
+      #      -boot-load-size 4 \
+      #      -boot-info-table \
+      #      --eltorito-catalog boot/grub/boot.cat \
+      #      --grub2-boot-info \
+      #      --grub2-mbr /usr/lib/grub/i386-pc/boot_hybrid.img \
+      #      -eltorito-alt-boot \
+      #      -e EFI/efiboot.img \
+      #      -no-emul-boot \
+      #      -append_partition 2 0xef ./scratch/efiboot.img \
+      #      -output "./pendrive.iso" \
+      #      -graft-points \
+      #        "./image" \
+      #        /boot/grub/bios.img=./scratch/bios.img \
+      #        /EFI/efiboot.img=./scratch/efiboot.img
 
-      - name: Upload current ISO file to MEGA locker
-        run: |
-          megaput --username "${{ secrets.MEGA_USER }}"  --password "${{ secrets.MEGA_PASS }}"  pendrive.iso
+      #- name: Delete previous ISO file from MEGA locker
+      #  run: |
+      #    megarm --username "${{ secrets.MEGA_USER }}"  --password "${{ secrets.MEGA_PASS }}"  /Root/pendrive.iso || true
 
-      - name: Get public link
-        id: mega_link
-        run: |
-          LINK=$(megaexport --username "${{ secrets.MEGA_USER }}" --password "${{ secrets.MEGA_PASS }}" /Root/pendrive.iso)
-          echo "🔗 Enlace: $LINK"
-          echo "link=$LINK" >> $GITHUB_OUTPUT
-      
-      - name: Delete previous release and tag
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release delete latest-release --yes || true
-          git push --delete origin latest-release || true
-          git tag -d latest-release || true
+      #- name: Upload current ISO file to MEGA locker
+      #  run: |
+      #    megaput --username "${{ secrets.MEGA_USER }}"  --password "${{ secrets.MEGA_PASS }}"  pendrive.iso
 
-      - name: Make Github Release with MEGA link
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION="pendrive-$(date +%Y%m%d-%H%M%S)"
-          ISO_HASH=$(sha256sum pendrive.iso | awk '{print $1}')
-          BODY="🔗 [Descargar ISO desde MEGA](${{ steps.mega_link.outputs.link }})<br><br>"
-          BODY+="🔐 **Verificación de integridad (SHA-256):**<br>"
-          BODY+="\`${ISO_HASH}\`<br><br>"
-          BODY+="Para verificar la integridad de la ISO, ejecuta:<br>"
-          BODY+="\`sha256sum pendrive.iso\` y asegúrate de que el resultado coincida con la firma mostrada arriba."
-          sha256sum pendrive.iso > pendrive.iso.sha256
-          gh release create latest-release pendrive.iso.sha256 --title "Release pendrive.iso" --notes "$BODY" --latest
+      #- name: Get public link
+      #  id: mega_link
+      #  run: |
+      #    LINK=$(megaexport --username "${{ secrets.MEGA_USER }}" --password "${{ secrets.MEGA_PASS }}" /Root/pendrive.iso)
+      #    echo "🔗 Enlace: $LINK"
+      #    echo "link=$LINK" >> $GITHUB_OUTPUT
+      #
+      #- name: Delete previous release and tag
+      #  env:
+      #    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  run: |
+      #    gh release delete latest-release --yes || true
+      #    git push --delete origin latest-release || true
+      #    git tag -d latest-release || true
 
-      - name: Make commit with signatures and version info
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          sha256sum pendrive.iso > pendrive.iso.sha256
-          git config user.name "Wilson"
-          git config user.email "wilsonhernandezortiz@gmail.com"
-          git add pendrive.iso.sha256
-          git commit -m "Add sha256 signature for verification purposes"
-          git push
+      #- name: Make Github Release with MEGA link
+      #  env:
+      #    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  run: |
+      #    VERSION="pendrive-$(date +%Y%m%d-%H%M%S)"
+      #    ISO_HASH=$(sha256sum pendrive.iso | awk '{print $1}')
+      #    BODY="🔗 [Descargar ISO desde MEGA](${{ steps.mega_link.outputs.link }})<br><br>"
+      #    BODY+="🔐 **Verificación de integridad (SHA-256):**<br>"
+      #    BODY+="\`${ISO_HASH}\`<br><br>"
+      #    BODY+="Para verificar la integridad de la ISO, ejecuta:<br>"
+      #    BODY+="\`sha256sum pendrive.iso\` y asegúrate de que el resultado coincida con la firma mostrada arriba."
+      #    sha256sum pendrive.iso > pendrive.iso.sha256
+      #    gh release create latest-release pendrive.iso.sha256 --title "Release pendrive.iso" --notes "$BODY" --latest
+
+      #- name: Make commit with signatures and version info
+      #  env:
+      #    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  run: |
+      #    sha256sum pendrive.iso > pendrive.iso.sha256
+      #    git config user.name "Wilson"
+      #    git config user.email "wilsonhernandezortiz@gmail.com"
+      #    git add pendrive.iso.sha256
+      #    git commit -m "Add sha256 signature for verification purposes"
+      #    git push
 
