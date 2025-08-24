@@ -93,6 +93,14 @@ jobs:
             xargs -a /tmp/packages.txt apt-get install -y
           "
           
+      - name: Make who user and set password
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            echo 'root:secret' | chpasswd
+            adduser --disabled-password --gecos '' who
+            echo 'who:secret' | chpasswd
+          "
+
       - name: Make CRYPT folder
         run: |
           sudo chroot filesystem /bin/bash -c "
@@ -101,14 +109,6 @@ jobs:
             mkdir -p /crypt/system-connections
             ln -s /crypt/system-connections /etc/NetworkManager/system-connections 
             chown who:who /crypt -R
-          "
-
-      - name: Make who user and set password
-        run: |
-          sudo chroot filesystem /bin/bash -c "
-            echo 'root:secret' | chpasswd
-            adduser --disabled-password --gecos '' who
-            echo 'who:secret' | chpasswd
           "
 
       - name: Set doas privileges
