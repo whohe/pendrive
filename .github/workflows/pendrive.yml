@@ -219,7 +219,6 @@ jobs:
           sudo mkfs.ext4 /dev/mapper/crypt
           UUID=$(sudo blkid -s UUID -o value /dev/mapper/crypt)
           echo $UUID
-          sudo umount /crypt   # solo si llegaste a montarlo
           sudo cryptsetup close crypt
           sudo losetup -d "$LOOP"
           sync
