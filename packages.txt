@@ -49,3 +49,6 @@ mesa-utils
 xserver-xorg-input-all
 libreoffice
 libreoffice-l10n-es
+seahorse
+evolution
+keepassxc

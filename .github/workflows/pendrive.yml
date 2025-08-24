@@ -106,6 +106,8 @@ jobs:
           sudo chroot filesystem /bin/bash -c "
             mkdir -p /crypt/.mozilla
             mkdir -p /crypt/.thunderbird
+            mkdir -p /crypt/.config
+            mkdir -p /crypt/.local
             mkdir -p /crypt/system-connections
             ln -s /crypt/system-connections /etc/NetworkManager/system-connections 
             chown who:who /crypt -R
@@ -176,6 +178,8 @@ jobs:
           sudo chroot filesystem /bin/bash -c "
             su - who -c 'ln -s  /crypt/.mozilla ~/.mozilla'
             su - who -c 'ln -s  /crypt/.thunderbird ~/.thunderbird'
+            su - who -c 'ln -s  /crypt/.config ~/.config'
+            su - who -c 'ln -s  /crypt/.local ~/.local'
           "
 
       - name: Setup ufw Firewall
