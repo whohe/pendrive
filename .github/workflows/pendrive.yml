@@ -211,13 +211,13 @@ jobs:
           sudo losetup -d "$LOOP"
           sync
 
-      - name: Generate crypttab
-        run: |
-          echo "crypt UUID=${{ steps.make_secure_storage.outputs.uuid }} none luks" | sudo tee filesystem/etc/crypttab
-      
-      - name: Generate fstab
-        run: |
-          echo "UUID=${{ steps.make_secure_storage.outputs.uuid }} /crypt ext4 defaults 0 2" | sudo tee filesystem/etc/fstab
+      #- name: Generate crypttab
+      #  run: |
+      #    echo "crypt UUID=${{ steps.make_secure_storage.outputs.uuid }} none luks" | sudo tee filesystem/etc/crypttab
+      #
+      #- name: Generate fstab
+      #  run: |
+      #    echo "UUID=${{ steps.make_secure_storage.outputs.uuid }} /crypt ext4 defaults 0 2" | sudo tee filesystem/etc/fstab
 
       - name: Make filesystem.squashfs
         run: |
