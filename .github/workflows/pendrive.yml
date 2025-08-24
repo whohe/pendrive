@@ -216,7 +216,7 @@ jobs:
           LOOP=$(losetup -j crypt.img | cut -d: -f1)
           echo -n ${{ secrets.CRYPT_SECRET }} | sudo cryptsetup luksFormat "$LOOP" --batch-mode --key-file -
           echo -n ${{ secrets.CRYPT_SECRET }} | sudo cryptsetup open "$LOOP" crypt --key-file -
-          mkfs.ext4 /dev/mapper/crypt
+          sudo mkfs.ext4 /dev/mapper/crypt
           UUID=$(sudo blkid -s UUID -o value /dev/mapper/crypt)
           echo $UUID
 
