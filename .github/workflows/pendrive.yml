@@ -220,7 +220,6 @@ jobs:
           UUID=$(sudo blkid -s UUID -o value /dev/mapper/crypt)
           echo $UUID
 
-
       #- name: Generate core.img with grub-mkstandalone
       #  run: |
       #    grub-mkstandalone \
