@@ -112,9 +112,7 @@ jobs:
             chown who:who /crypt -R
             su - who -c 'mkdir ~/.local/share/keyrings/'
             su - who -c 'mkdir ~/.config/goa-1.0/'
-            su - who -c 'mkdir -p ~/.config/system-connections'
-            rm -rf /etc/NetworkManager/system-connections 
-            #ln -s /crypt/system-connections /etc/NetworkManager/system-connections 
+            mkdir -p /etc/NetworkManager/system-connections 
           "
 
       - name: Set doas privileges
@@ -223,9 +221,10 @@ jobs:
       - name: Generate fstab
         run: |
           echo "/dev/mapper/crypt /crypt ext4 defaults,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 2" | sudo tee filesystem/etc/fstab
+          echo "/crypt/.mozilla/ /home/who/.mozilla none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
           echo "/crypt/.config/goa-1.0 /home/who/.config/goa-1.0 none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
           echo "/crypt/.local/share/keyrings /home/who/.local/share/keyrings none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
-          echo "/crypt/system-connections /home/who/.system-connections none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
+          echo "/crypt/system-connections /etc/NetworkManager/system-connections none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
 
 
       - name: Make filesystem.squashfs
