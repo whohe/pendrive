@@ -26,8 +26,7 @@ htop
 pulseaudio-utils 
 tree 
 cryptsetup 
-mtools 
-grub-pc 
+mtools  
 grub-efi
 xorriso 
 qemu-kvm 
