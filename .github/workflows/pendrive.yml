@@ -104,10 +104,17 @@ jobs:
       - name: Make CRYPT folder
         run: |
           sudo chroot filesystem /bin/bash -c "
-            su - who -c 'mkdir ~/.local'
+            mkdir -p /crypt/.mozilla
+            mkdir -p /crypt/.config/goa-1.0
+            mkdir -p /crypt/.local
+            mkdir -p /crypt/.local/share/keyrings/
+            mkdir -p /crypt/system-connections
+            chown who:who /crypt -R
+            su - who -c 'mkdir ~/.local/share/keyrings/'
+            su - who -c 'mkdir ~/.config/goa-1.0/'
             su - who -c 'mkdir -p ~/.config/system-connections'
             rm -rf /etc/NetworkManager/system-connections 
-            ln -s /home/who/.config/system-connections /etc/NetworkManager/system-connections 
+            #ln -s /crypt/system-connections /etc/NetworkManager/system-connections 
           "
 
       - name: Set doas privileges
@@ -170,13 +177,6 @@ jobs:
             su - who -c 'wget -O ~/.gitignore https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
           "
 
-      #- name: linked mozilla and evolution to crypt folder
-      #  run: |
-      #    sudo chroot filesystem /bin/bash -c "
-      #      su - who -c 'ln -s  /crypt/.mozilla ~/.mozilla'
-      #      su - who -c 'ln -s  /crypt/.config ~/.config'
-      #      su - who -c 'ln -s  /crypt/.local ~/.local'
-      #    "
 
       - name: Setup ufw Firewall
         run: |
@@ -205,22 +205,28 @@ jobs:
           sudo losetup -fP crypt.img
           LOOP=$(losetup -j crypt.img | cut -d: -f1)
           echo -n ${{ secrets.CRYPT_SECRET }} | sudo cryptsetup luksFormat "$LOOP" --batch-mode --key-file -
+          LUKS_UUID=$(sudo cryptsetup luksUUID "$LOOP")
           echo -n ${{ secrets.CRYPT_SECRET }} | sudo cryptsetup open "$LOOP" crypt --key-file -
           sudo mkfs.ext4 /dev/mapper/crypt
           UUID=$(sudo blkid -s UUID -o value /dev/mapper/crypt)
           echo $UUID
           echo "uuid=$UUID" >> "$GITHUB_OUTPUT"
+          echo "luks_uuid=$LUKS_UUID" >> "$GITHUB_OUTPUT"
           sudo cryptsetup close crypt
           sudo losetup -d "$LOOP"
           sync
 
       - name: Generate crypttab
         run: |
-          echo "crypt UUID=${{ steps.make_secure_storage.outputs.uuid }} none luks" | sudo tee filesystem/etc/crypttab
+          echo "crypt UUID=${{ steps.make_secure_storage.outputs.luks_uuid }} none luks" | sudo tee filesystem/etc/crypttab
       
       - name: Generate fstab
         run: |
-          echo "UUID=${{ steps.make_secure_storage.outputs.uuid }} /home/who ext4 defaults,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 2" | sudo tee filesystem/etc/fstab
+          echo "/dev/mapper/crypt /crypt ext4 defaults,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 2" | sudo tee filesystem/etc/fstab
+          echo "/crypt/.config/goa-1.0 /home/who/.config/goa-1.0 none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
+          echo "/crypt/.local/share/keyrings /home/who/.local/share/keyrings none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
+          echo "/crypt/system-connections /home/who/.system-connections none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
+
 
       - name: Make filesystem.squashfs
         run: |
