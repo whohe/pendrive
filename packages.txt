@@ -28,6 +28,7 @@ tree
 cryptsetup 
 mtools 
 grub-pc 
+grub-efi
 xorriso 
 qemu-kvm 
 bridge-utils 

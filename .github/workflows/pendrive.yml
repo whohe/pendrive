@@ -104,13 +104,10 @@ jobs:
       - name: Make CRYPT folder
         run: |
           sudo chroot filesystem /bin/bash -c "
-            mkdir -p /crypt/.mozilla
-            mkdir -p /crypt/.thunderbird
-            mkdir -p /crypt/.config
-            mkdir -p /crypt/.local
-            mkdir -p /crypt/system-connections
-            ln -s /crypt/system-connections /etc/NetworkManager/system-connections 
-            chown who:who /crypt -R
+            su - who -c 'mkdir ~/.local'
+            su - who -c 'mkdir -p ~/.config/system-connections'
+            rm -rf /etc/NetworkManager/system-connections 
+            ln -s /home/who/.config/system-connections /etc/NetworkManager/system-connections 
           "
 
       - name: Set doas privileges
@@ -173,14 +170,13 @@ jobs:
             su - who -c 'wget -O ~/.gitignore https://gist.githubusercontent.com/whohe/5046801a255d92ef2fee88cf5fab3626/raw/3e058d0b2cc829d794b099c6d20d3644581e8945/rifle.conf'
           "
 
-      - name: linked mozilla and thunderbird to crypt folder
-        run: |
-          sudo chroot filesystem /bin/bash -c "
-            su - who -c 'ln -s  /crypt/.mozilla ~/.mozilla'
-            su - who -c 'ln -s  /crypt/.thunderbird ~/.thunderbird'
-            su - who -c 'ln -s  /crypt/.config ~/.config'
-            su - who -c 'ln -s  /crypt/.local ~/.local'
-          "
+      #- name: linked mozilla and evolution to crypt folder
+      #  run: |
+      #    sudo chroot filesystem /bin/bash -c "
+      #      su - who -c 'ln -s  /crypt/.mozilla ~/.mozilla'
+      #      su - who -c 'ln -s  /crypt/.config ~/.config'
+      #      su - who -c 'ln -s  /crypt/.local ~/.local'
+      #    "
 
       - name: Setup ufw Firewall
         run: |
@@ -218,13 +214,13 @@ jobs:
           sudo losetup -d "$LOOP"
           sync
 
-      #- name: Generate crypttab
-      #  run: |
-      #    echo "crypt UUID=${{ steps.make_secure_storage.outputs.uuid }} none luks" | sudo tee filesystem/etc/crypttab
-      #
-      #- name: Generate fstab
-      #  run: |
-      #    echo "UUID=${{ steps.make_secure_storage.outputs.uuid }} /crypt ext4 defaults 0 2" | sudo tee filesystem/etc/fstab
+      - name: Generate crypttab
+        run: |
+          echo "crypt UUID=${{ steps.make_secure_storage.outputs.uuid }} none luks" | sudo tee filesystem/etc/crypttab
+      
+      - name: Generate fstab
+        run: |
+          echo "UUID=${{ steps.make_secure_storage.outputs.uuid }} /home/who ext4 defaults,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 2" | sudo tee filesystem/etc/fstab
 
       - name: Make filesystem.squashfs
         run: |
