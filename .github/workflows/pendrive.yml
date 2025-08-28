@@ -220,6 +220,12 @@ jobs:
           sudo losetup -d "$LOOP"
           sync
 
+      - name: make vfat device
+        run: |
+          cd scratch
+          dd if=/dev/zero of=vfat.img bs=1m count=3072
+          mkfs.vfat -F32 -n multimedia vfat.img
+
       - name: Generate crypttab
         run: |
           echo "crypt UUID=${{ steps.make_secure_storage.outputs.luks_uuid }} none luks" | sudo tee filesystem/etc/crypttab
@@ -289,6 +295,7 @@ jobs:
             -no-emul-boot \
             -append_partition 2 0xef ./scratch/efiboot.img \
             -append_partition 3 0x83 ./scratch/crypt.img \
+            -append_partition 4 0x0c ./scratch/vfat.img \
             -output "./pendrive.iso" \
             -graft-points \
               "./image" \
