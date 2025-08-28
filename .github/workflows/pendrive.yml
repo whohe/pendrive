@@ -93,6 +93,12 @@ jobs:
             xargs -a /tmp/packages.txt apt-get install -y
           "
           
+      - name: Uninstall gnome-software
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            apt autoremove -y gnome-software packagekit
+          "
+
       - name: Make who user and set password
         run: |
           sudo chroot filesystem /bin/bash -c "
@@ -226,6 +232,14 @@ jobs:
           echo "/crypt/.local/share/keyrings /home/who/.local/share/keyrings none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
           echo "/crypt/system-connections /etc/NetworkManager/system-connections none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
 
+      - name: Crear override para NetworkManager
+        run: |
+          sudo mkdir -p filesystem/etc/systemd/system/NetworkManager.service.d
+          cat <<'EOF' | sudo tee filesystem/etc/systemd/system/NetworkManager.service.d/override.conf
+          [Unit]
+          Wants=etc-NetworkManager-system\x2dconnections.mount
+          After=etc-NetworkManager-system\x2dconnections.mount
+          EOF
 
       - name: Make filesystem.squashfs
         run: |
