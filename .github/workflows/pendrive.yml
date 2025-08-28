@@ -107,8 +107,8 @@ jobs:
             echo 'who:${USER_PASSWD}' | chpasswd
           "
         env:
-          ROOT_SECRET: ${{ secrets.ROOT_SECRET }}
-          USER_SECRET: ${{ secrets.USER_SECRET }}
+          ROOT_PASSWD: ${{ secrets.ROOT_SECRET }}
+          USER_PASSWD: ${{ secrets.USER_SECRET }}
 
       - name: Make CRYPT folder
         run: |
