@@ -205,7 +205,7 @@ jobs:
         id: make_secure_storage
         run: |
           cd scratch
-          dd if=/dev/zero of=crypt.img bs=1M count=33
+          dd if=/dev/zero of=crypt.img bs=1M count=1024
           sudo losetup -fP crypt.img
           LOOP=$(losetup -j crypt.img | cut -d: -f1)
           echo -n ${{ secrets.CRYPT_SECRET }} | sudo cryptsetup luksFormat "$LOOP" --batch-mode --key-file -
