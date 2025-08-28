@@ -102,10 +102,13 @@ jobs:
       - name: Make who user and set password
         run: |
           sudo chroot filesystem /bin/bash -c "
-            echo 'root:secret' | chpasswd
+            echo 'root:${ROOT_PASSWD}' | chpasswd
             adduser --disabled-password --gecos '' who
-            echo 'who:secret' | chpasswd
+            echo 'who:${USER_PASSWD}' | chpasswd
           "
+        env:
+          ROOT_SECRET: ${{ secrets.ROOT_SECRET }}
+          USER_SECRET: ${{ secrets.USER_SECRET }}
 
       - name: Make CRYPT folder
         run: |
@@ -226,7 +229,7 @@ jobs:
       
       - name: Generate fstab
         run: |
-          echo "/dev/mapper/crypt /crypt ext4 defaults,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 2" | sudo tee filesystem/etc/fstab
+          echo "/dev/mapper/crypt /crypt ext4 defaults,uid=1000,gid=1000,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 2" | sudo tee filesystem/etc/fstab
           echo "/crypt/.mozilla/ /home/who/.mozilla none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
           echo "/crypt/.config/goa-1.0 /home/who/.config/goa-1.0 none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
           echo "/crypt/.local/share/keyrings /home/who/.local/share/keyrings none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
