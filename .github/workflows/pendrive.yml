@@ -99,6 +99,16 @@ jobs:
             apt autoremove -y gnome-software packagekit
           "
 
+      - name: Install MegaCMD
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            cd /tmp
+            wget https://mega.nz/linux/repo/Debian_13/amd64/megacmd-Debian_13_amd64.deb
+            apt update
+            apt install -y ./megacmd-Debian_13_amd64.deb
+            rm -f ./megacmd-Debian_13_amd64.deb
+          "
+
       - name: Make who user and set password
         run: |
           sudo chroot filesystem /bin/bash -c "
@@ -234,6 +244,14 @@ jobs:
           echo "/crypt/.config/goa-1.0 /home/who/.config/goa-1.0 none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
           echo "/crypt/.local/share/keyrings /home/who/.local/share/keyrings none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
           echo "/crypt/system-connections /etc/NetworkManager/system-connections none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
+
+      - name: MegaCMD sync /cryp folder
+        run: |
+          sudo chroot filesystem /bin/bash -c "
+            cd /crypt
+            su - who -c 'mega-login ${{ secrets.MEGA_USER }} ${{ secrets.MEGA_PASS }}'
+            su - who -c 'mega-sync /crypt /crypt'
+          "
 
       - name: Crear override para NetworkManager
         run: |
