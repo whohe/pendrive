@@ -205,7 +205,7 @@ jobs:
         id: make_secure_storage
         run: |
           cd scratch
-          dd if=/dev/zero of=crypt.img bs=1M count=1024
+          dd if=/dev/zero of=crypt.img bs=1M count=555
           sudo losetup -fP crypt.img
           LOOP=$(losetup -j crypt.img | cut -d: -f1)
           echo -n ${{ secrets.CRYPT_SECRET }} | sudo cryptsetup luksFormat "$LOOP" --batch-mode --key-file -
@@ -219,12 +219,6 @@ jobs:
           sudo cryptsetup close crypt
           sudo losetup -d "$LOOP"
           sync
-
-      - name: make vfat device
-        run: |
-          cd scratch
-          dd if=/dev/zero of=vfat.img bs=1M count=1024
-          mkfs.vfat -F32 -n multimedia vfat.img
 
       - name: Generate crypttab
         run: |
@@ -295,7 +289,6 @@ jobs:
             -no-emul-boot \
             -append_partition 2 0xef ./scratch/efiboot.img \
             -append_partition 3 0x83 ./scratch/crypt.img \
-            -append_partition 4 0x0c ./scratch/vfat.img \
             -output "./pendrive.iso" \
             -graft-points \
               "./image" \
