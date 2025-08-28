@@ -223,7 +223,7 @@ jobs:
       - name: make vfat device
         run: |
           cd scratch
-          dd if=/dev/zero of=vfat.img bs=1M count=3072
+          dd if=/dev/zero of=vfat.img bs=1M count=1024
           mkfs.vfat -F32 -n multimedia vfat.img
 
       - name: Generate crypttab
