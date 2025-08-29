@@ -1,0 +1,11 @@
+[Unit]
+Description=MegaCMD background server
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/megacmd-server
+Restart=on-failure
+User=who
+      
+[Install]
+WantedBy=multi-user.target
