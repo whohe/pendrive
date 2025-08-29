@@ -259,40 +259,9 @@ jobs:
 
       - name: Configure MegaCMD systemd services
         run: |
+          sudo cp services/megacmd-server.service filesystem/etc/systemd/system/megacmd-server.service
+          sudo cp services/megasync-preconfig.service filesystem/etc/systemd/system/megasync-preconfig.service
           sudo chroot filesystem /bin/bash -c "
-            # Servicio 1: megacmd-server (se asegura de que el daemon esté siempre activo)
-            cat > /etc/systemd/system/megacmd-server.service <<'EOF'
-            [Unit]
-            Description=MegaCMD background server
-            After=network.target
-      
-            [Service]
-            ExecStart=/usr/bin/megacmd-server
-            Restart=on-failure
-            User=who
-      
-            [Install]
-            WantedBy=multi-user.target
-            EOF
-      
-            # Servicio 2: megasync-preconfig (intenta crear la sync en cada arranque)
-            cat > /etc/systemd/system/megasync-preconfig.service <<'EOF'
-            [Unit]
-            Description=Preconfigure MegaCMD sync /crypt
-            Wants=megacmd-server.service
-            After=megacmd-server.service
-      
-            [Service]
-            Type=oneshot
-            ExecStart=/usr/bin/mega-sync /crypt /crypt
-            RemainAfterExit=yes
-            User=who
-      
-            [Install]
-            WantedBy=multi-user.target
-            EOF
-      
-            # Habilitar ambos servicios en el arranque
             systemctl enable megacmd-server.service
             systemctl enable megasync-preconfig.service
           "
