@@ -137,6 +137,7 @@ jobs:
             mkdir -p /crypt/.config/goa-1.0
             mkdir -p /crypt/.local
             mkdir -p /crypt/.local/share/keyrings/
+            mkdir -p /crypt/.megaCmd
             mkdir -p /crypt/system-connections
             chown who:who /crypt -R
             su - who -c 'mkdir ~/.local/share/keyrings/'
@@ -256,12 +257,44 @@ jobs:
           echo "/crypt/system-connections /etc/NetworkManager/system-connections none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
           echo "/crypt/.megaCmd /home/who/.megaCmd none bind,nofail,x-systemd.requires=systemd-cryptsetup@crypt.service 0 0" | sudo tee -a filesystem/etc/fstab
 
-      - name: MegaCMD sync /cryp folder
+      - name: Configure MegaCMD systemd services
         run: |
           sudo chroot filesystem /bin/bash -c "
-            cd /crypt
-            #su - who -c 'mega-login ${{ secrets.MEGA_USER }} ${{ secrets.MEGA_PASS }}'
-            #su - who -c 'mega-sync /crypt /crypt'
+            # Servicio 1: megacmd-server (se asegura de que el daemon esté siempre activo)
+            cat > /etc/systemd/system/megacmd-server.service <<'EOF'
+            [Unit]
+            Description=MegaCMD background server
+            After=network.target
+      
+            [Service]
+            ExecStart=/usr/bin/megacmd-server
+            Restart=on-failure
+            User=who
+      
+            [Install]
+            WantedBy=multi-user.target
+            EOF
+      
+            # Servicio 2: megasync-preconfig (intenta crear la sync en cada arranque)
+            cat > /etc/systemd/system/megasync-preconfig.service <<'EOF'
+            [Unit]
+            Description=Preconfigure MegaCMD sync /crypt
+            Wants=megacmd-server.service
+            After=megacmd-server.service
+      
+            [Service]
+            Type=oneshot
+            ExecStart=/usr/bin/mega-sync /crypt /crypt
+            RemainAfterExit=yes
+            User=who
+      
+            [Install]
+            WantedBy=multi-user.target
+            EOF
+      
+            # Habilitar ambos servicios en el arranque
+            systemctl enable megacmd-server.service
+            systemctl enable megasync-preconfig.service
           "
 
       - name: Crear override para NetworkManager

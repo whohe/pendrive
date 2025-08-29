@@ -5,6 +5,7 @@ util-linux-extra
 ufw
 fdisk
 doas
+plocate
 wget 
 evince
 vim-nox 
