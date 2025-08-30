@@ -3,7 +3,7 @@ Description=MegaCMD background server
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/megacmd-server
+ExecStart=/usr/bin/mega-cmd-server
 Restart=on-failure
 User=who
       
