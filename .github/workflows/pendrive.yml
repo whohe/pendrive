@@ -259,11 +259,11 @@ jobs:
 
       - name: Configure MegaCMD systemd services
         run: |
-          #sudo cp services/megacmd-server.service filesystem/etc/systemd/system/megacmd-server.service
-          sudo cp services/megasync-preconfig.service filesystem/etc/systemd/system/megasync-preconfig.service
+          sudo cp services/megacmd-server.service filesystem/etc/systemd/system/megacmd-server.service
+          #sudo cp services/megasync-preconfig.service filesystem/etc/systemd/system/megasync-preconfig.service
           sudo chroot filesystem /bin/bash -c "
-            #systemctl enable megacmd-server.service
-            systemctl enable megasync-preconfig.service
+            systemctl enable megacmd-server.service
+            #systemctl enable megasync-preconfig.service
           "
 
       - name: Crear override para NetworkManager
