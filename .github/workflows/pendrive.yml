@@ -22,6 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          echo "${{ secrets.MEGA_PASS }}" 
           sudo apt-get update
           sudo apt-get install -y wget p7zip-full debootstrap squashfs-tools mtools dosfstools grub-pc-bin xorriso megatools
 
