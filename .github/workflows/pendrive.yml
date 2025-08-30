@@ -20,12 +20,6 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v3
 
-      - name: show pass
-        run: |
-          echo ${PASSWD}
-        env:
-          PASSWD: ${{ secrets.MEGA_PASS }}
-
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -265,10 +259,10 @@ jobs:
 
       - name: Configure MegaCMD systemd services
         run: |
-          sudo cp services/megacmd-server.service filesystem/etc/systemd/system/megacmd-server.service
+          #sudo cp services/megacmd-server.service filesystem/etc/systemd/system/megacmd-server.service
           sudo cp services/megasync-preconfig.service filesystem/etc/systemd/system/megasync-preconfig.service
           sudo chroot filesystem /bin/bash -c "
-            systemctl enable megacmd-server.service
+            #systemctl enable megacmd-server.service
             systemctl enable megasync-preconfig.service
           "
 
