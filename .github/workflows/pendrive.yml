@@ -331,9 +331,9 @@ jobs:
 
       - name: Split ISO into parts
         run: |
-          cp pendrive.iso /mnt/
+          sudo cp pendrive.iso /mnt/
           cd /mnt
-          split -b 2048M pendrive.iso pendrive.iso.part.
+          sudo split -b 2048M pendrive.iso pendrive.iso.part.
           df -h
       
       - name: Upload ISO parts as artifacts
