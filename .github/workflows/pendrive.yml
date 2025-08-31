@@ -336,12 +336,6 @@ jobs:
           sudo split -b 2048M pendrive.iso pendrive.iso.part.
           df -h
       
-      - name: Upload ISO parts as artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: iso-parts
-          path: /mnt/pendrive.iso.part.*
-
       - name: Delete previous ISO file from MEGA locker
         run: |
           megarm --username "${{ secrets.MEGA_USER }}"  --password "${{ secrets.MEGA_PASS }}"  /Root/pendrive.iso || true
@@ -378,6 +372,12 @@ jobs:
           BODY+="\`sha256sum pendrive.iso\` y asegúrate de que el resultado coincida con la firma mostrada arriba."
           sha256sum pendrive.iso > pendrive.iso.sha256
           gh release create latest-release pendrive.iso.sha256 --title "Release pendrive.iso" --notes "$BODY" --latest
+
+      - name: Upload ISO parts to Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload latest-release /mnt/pendrive.iso.part.*
 
       - name: Make commit with signatures and version info
         env:
