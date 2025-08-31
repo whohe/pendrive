@@ -377,7 +377,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload latest-release /mnt/pendrive.iso.part.*
+          gh release upload latest-release \
+            /mnt/pendrive.iso.part.aa#pendrive.iso.part.aa \
+            /mnt/pendrive.iso.part.ab#pendrive.iso.part.ab \
+            /mnt/pendrive.iso.part.ac#pendrive.iso.part.ac \
+            --clobber
 
       - name: Make commit with signatures and version info
         env:
