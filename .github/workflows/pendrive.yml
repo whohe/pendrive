@@ -329,6 +329,15 @@ jobs:
               /boot/grub/bios.img=./scratch/bios.img \
               /EFI/efiboot.img=./scratch/efiboot.img
 
+      - name: Split ISO into parts
+        run: split -b 2000M pendrive.iso pendrive.iso.part.
+      
+      - name: Upload ISO parts as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: iso-parts
+          path: pendrive.iso.part.*
+
       - name: Delete previous ISO file from MEGA locker
         run: |
           megarm --username "${{ secrets.MEGA_USER }}"  --password "${{ secrets.MEGA_PASS }}"  /Root/pendrive.iso || true
