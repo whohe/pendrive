@@ -333,7 +333,7 @@ jobs:
         run: |
           sudo cp pendrive.iso /mnt/
           cd /mnt
-          sudo split -b 2048M pendrive.iso pendrive.iso.part.
+          sudo split -b 2000M pendrive.iso pendrive.iso.part.
           df -h
       
       - name: Delete previous ISO file from MEGA locker
