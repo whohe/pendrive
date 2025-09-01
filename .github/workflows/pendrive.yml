@@ -375,12 +375,18 @@ jobs:
 
       - name: Upload part aa
         run: gh release upload latest-release /mnt/pendrive.iso.part.aa --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Upload part ab
         run: gh release upload latest-release /mnt/pendrive.iso.part.ab --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Upload part ac
         run: gh release upload latest-release /mnt/pendrive.iso.part.ac --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Make commit with signatures and version info
         env:
