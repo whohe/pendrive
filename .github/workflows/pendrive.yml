@@ -373,15 +373,14 @@ jobs:
           sha256sum pendrive.iso > pendrive.iso.sha256
           gh release create latest-release pendrive.iso.sha256 --title "Release pendrive.iso" --notes "$BODY" --latest
 
-      - name: Upload ISO parts to Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload latest-release \
-            /mnt/pendrive.iso.part.aa \
-            /mnt/pendrive.iso.part.ab \
-            /mnt/pendrive.iso.part.ac \
-            --clobber
+      - name: Upload part aa
+        run: gh release upload latest-release /mnt/pendrive.iso.part.aa --clobber
+      
+      - name: Upload part ab
+        run: gh release upload latest-release /mnt/pendrive.iso.part.ab --clobber
+      
+      - name: Upload part ac
+        run: gh release upload latest-release /mnt/pendrive.iso.part.ac --clobber
 
       - name: Make commit with signatures and version info
         env:
