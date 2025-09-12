@@ -31,7 +31,6 @@ mtools
 grub-efi
 grub-pc-bin
 xorriso 
-squashfs-tools-ng
 qemu-kvm 
 bridge-utils 
 virt-manager 
