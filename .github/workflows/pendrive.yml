@@ -313,7 +313,7 @@ jobs:
             -volid "pendrive" \
             -eltorito-boot boot/grub/bios.img \
             -no-emul-boot \
-            -allow-limited-size \
+            -xorrisofs-allow-larger-than-4g \
             -boot-load-size 4 \
             -boot-info-table \
             --eltorito-catalog boot/grub/boot.cat \
