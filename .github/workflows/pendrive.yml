@@ -1,13 +1,13 @@
 name: Live USB ISO Image Builder with Gnome
 
-on:
-  schedule:
-    - cron: '30 10 * * *' 
-
 #on:
-#  push:
-#    branches:
-#      - '**'  # Esto incluye todas las ramas
+#  schedule:
+#    - cron: '30 10 * * *' 
+
+on:
+  push:
+    branches:
+      - '**'  # Esto incluye todas las ramas
 
 permissions:
   contents: write
@@ -229,7 +229,7 @@ jobs:
         id: make_secure_storage
         run: |
           cd scratch
-          dd if=/dev/zero of=crypt.img bs=1M count=333
+          dd if=/dev/zero of=crypt.img bs=1M count=777
           sudo losetup -fP crypt.img
           LOOP=$(losetup -j crypt.img | cut -d: -f1)
           echo -n ${{ secrets.CRYPT_SECRET }} | sudo cryptsetup luksFormat "$LOOP" --batch-mode --key-file -
@@ -313,6 +313,7 @@ jobs:
             -volid "pendrive" \
             -eltorito-boot boot/grub/bios.img \
             -no-emul-boot \
+            --allow-limited-size \
             -boot-load-size 4 \
             -boot-info-table \
             --eltorito-catalog boot/grub/boot.cat \
