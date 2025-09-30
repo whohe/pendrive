@@ -307,28 +307,21 @@ jobs:
 
       - name: Build hybrid ISO with GRUB BIOS/UEFI
         run: |
-          xorriso -as mkisofs \
-            -iso-level 3 \
-            -full-iso9660-filenames \
-            -volid "pendrive" \
-            -eltorito-boot boot/grub/bios.img \
-            -no-emul-boot \
-            -xorrisofs-allow-larger-than-4g \
-            -boot-load-size 4 \
-            -boot-info-table \
-            --eltorito-catalog boot/grub/boot.cat \
-            --grub2-boot-info \
-            --grub2-mbr /usr/lib/grub/i386-pc/boot_hybrid.img \
-            -eltorito-alt-boot \
-            -e EFI/efiboot.img \
-            -no-emul-boot \
+          xorriso \
+            -outdev ./pendrive.iso \
+            -volid pendrive \
+            -map ./image / \
+            -map ./scratch/bios.img /boot/grub/bios.img \
+            -map ./scratch/efiboot.img /EFI/efiboot.img \
+            -boot_image grub grub2_mbr=/usr/lib/grub/i386-pc/boot_hybrid.img \
+            -boot_image grub grub2_boot_info=on \
+            -boot_image any cat_path=/boot/grub/boot.cat \
+            -boot_image isolinux bin_path=/boot/grub/bios.img \
+            -boot_image isolinux load_size=4 \
+            -boot_image isolinux no_emul_toc=on \
+            -boot_image any efi_path=/EFI/efiboot.img \
             -append_partition 2 0xef ./scratch/efiboot.img \
-            -append_partition 3 0x83 ./scratch/crypt.img \
-            -output "./pendrive.iso" \
-            -graft-points \
-              "./image" \
-              /boot/grub/bios.img=./scratch/bios.img \
-              /EFI/efiboot.img=./scratch/efiboot.img
+            -append_partition 3 0x83 ./scratch/crypt.img
 
       - name: Split ISO into parts
         run: |
