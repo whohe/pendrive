@@ -317,7 +317,6 @@ jobs:
             -boot_image grub grub2_boot_info=on \
             -boot_image any cat_path=/boot/grub/boot.cat \
             -boot_image isolinux bin_path=/boot/grub/bios.img \
-            -boot_image isolinux load_size=4 \
             -boot_image isolinux no_emul_toc=on \
             -boot_image any efi_path=/EFI/efiboot.img \
             -append_partition 2 0xef ./scratch/efiboot.img \
